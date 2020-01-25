@@ -10,6 +10,10 @@ let g:loaded_impiared = 1
 let s:opening_chars = []
 let s:closing_chars = []
 
+fun! s:get_pairs() abort
+    return get(g:, 'Impiared_pairs', [['(', ')'], ['{', '}'], ['[', ']']])
+endf
+
 fun! s:setup_pair(start, end) abort
    call add(s:opening_chars, a:start)
    call add(s:closing_chars, a:end)
@@ -17,11 +21,12 @@ fun! s:setup_pair(start, end) abort
    exe 'inoremap <expr> '.a:end.' <SID>close_pair("'.a:end.'")'
 endf
 
-call s:setup_pair('(', ')')
-call s:setup_pair('{', '}')
-call s:setup_pair('[', ']')
+for pair in s:get_pairs()
+    call s:setup_pair(pair[0], pair[1])
+endfor
 
 inoremap <expr> <backspace> <SID>do_backspace()
+inoremap <expr> <CR>        <SID>do_carriage_return()
 
 fun! s:open_pair(start, end) abort
    if col('$') - 1 >= col('.') && getline('.')[col('.') - 1] ==# a:end
@@ -48,4 +53,15 @@ fun! s:do_backspace() abort
    endif
 
    return "\<backspace>"
+endf
+
+fun! s:do_carriage_return() abort
+    let line = getline('.')
+    let col = col('.')
+    for pair in s:get_pairs()
+        if line[col-2] ==# pair[0] && line[col-1] ==# pair[1]
+            return "\<CR>\<ESC>O"
+        endif
+    endfor
+    return "\<CR>"
 endf
