@@ -1,8 +1,7 @@
 " impiared.vim - auto closed your pairs
 " Maintainer: Adam P. Regasz-Rethy (RRethy) <rethy.spud@gmail.com>
 
-
-" TODO dont close pair if there is a word in front
+" TODO don't close pair if it's been matched already
 
 if exists('g:loaded_impiared')
     finish
@@ -32,7 +31,7 @@ inoremap <expr> <backspace> <SID>do_backspace()
 inoremap <expr> <CR>        <SID>do_carriage_return()
 
 fun! s:open_pair(start, end) abort
-    if col('$') - 1 >= col('.') && getline('.')[col('.') - 1] ==# a:end
+    if col('$') - 1 >= col('.') && (getline('.')[col('.') - 1] ==# a:end || getline('.')[col('.') - 1] =~# '\k')
         return a:start
     else
         return a:start.a:end."\<Left>"
